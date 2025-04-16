@@ -1,8 +1,9 @@
-version: '3'
+version: "3"
 
 services:
   backend:
     build: .
+    container_name: vocalytics-backend
     ports:
       - "8000:8000"
     volumes:
