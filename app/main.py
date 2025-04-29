@@ -5,7 +5,10 @@ import socketio
 from event import register_sockets
 from fastapi.responses import HTMLResponse
 
-sio = socketio.AsyncServer(async_mode='asgi')
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins="*"
+)
 fastapi_app = FastAPI()
 
 fastapi_app.add_middleware(

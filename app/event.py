@@ -1,4 +1,3 @@
-# app/events.py
 import numpy as np
 import tempfile
 import wave
@@ -14,10 +13,12 @@ def register_sockets(sio):
 
     @sio.event
     async def audioData(sid, data):
+        print(f"📥 Raw PCM audioData received ({len(data)} bytes)")
         audio_buffer.append(np.frombuffer(data, dtype=np.int16))
 
     @sio.event
     async def endRecording(sid):
+        print("🛑 Recording ended, processing...")
         audio = np.concatenate(audio_buffer)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
             with wave.open(tmp.name, 'wb') as wf:
