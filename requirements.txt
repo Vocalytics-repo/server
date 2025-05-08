@@ -1,8 +1,8 @@
 fastapi
-python-socketio[asgi]
 uvicorn
 numpy
 torch
 torchaudio
 Cython
+python-multipart
 git+https://github.com/openai/whisper.git
