@@ -21,34 +21,7 @@ fastapi_app.add_middleware(
 
 @fastapi_app.get("/", response_class=HTMLResponse)
 def root():
-    return """
-    <html>
-      <head>
-        <title>Vocalytics STT Server</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
-            color: #333;
-            text-align: center;
-            padding-top: 100px;
-          }
-          h1 {
-            font-size: 2.5em;
-            color: #4CAF50;
-          }
-          p {
-            font-size: 1.2em;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>Welcome to Vocalytics's Server</h1>
-        <p>STT Web Service Coming Soon</p>
-        <p>Powered by Nginx + Ubuntu</p>
-      </body>
-    </html>
-    """
+    return "Server is running."
 
 register_sockets(sio)
 
