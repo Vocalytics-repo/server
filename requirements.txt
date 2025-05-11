@@ -6,3 +6,6 @@ torchaudio
 Cython
 python-multipart
 git+https://github.com/openai/whisper.git
+google-cloud-texttospeech
+python-dotenv
+requests

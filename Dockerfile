@@ -18,5 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 앱 코드 복사
 COPY ./app /app
 
+COPY unique-conquest-459504-u5-85d90285f98e.json /app/
+
 # 실행 명령: uvicorn으로 서버 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

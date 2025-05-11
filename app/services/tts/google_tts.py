@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 from google.cloud import texttospeech
@@ -10,16 +10,16 @@ from io import BytesIO
 load_dotenv()
 
 # Google 인증 키 경로 환경변수 설정
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/unique-conquest-459504-u5-85d90285f98e.json"
 
-app = FastAPI()
+router = APIRouter()
 
 # 요청 모델
 class TTSRequest(BaseModel):
     text: str
 
 # TTS API 엔드포인트
-@app.post("/api/tts")
+@router.post("/api/tts")
 def text_to_speech(request: TTSRequest):
     if not request.text:
         raise HTTPException(status_code=400, detail="Text is required.")
@@ -70,4 +70,5 @@ def text_to_speech(request: TTSRequest):
         )
 
     except Exception as e:
+        print(f"TTS 호출 실패: {e}")  # 로그에 출력되도록
         raise HTTPException(status_code=500, detail=f"TTS 호출 실패: {e}")

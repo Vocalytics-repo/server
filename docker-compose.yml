@@ -4,7 +4,10 @@ services:
   backend:
     build: .
     container_name: vocalytics-backend
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
+      - ./your-credentials.json:/app/your-credentials.json
