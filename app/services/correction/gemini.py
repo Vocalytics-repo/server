@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import os
 import requests
@@ -12,14 +12,14 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 if not API_KEY:
     raise ValueError("API 키가 설정되지 않았습니다. .env 파일을 확인하세요.")
 
-app = FastAPI()
+router = APIRouter()
 
 # 데이터 모델 정의
 class PromptRequest(BaseModel):
     prompt: str
 
 # 엔드포인트 생성
-@app.post("/chat")
+@router.post("/corr")
 def chat_with_gemini(request: PromptRequest):
     if not request.prompt:
         raise HTTPException(status_code=400, detail="Prompt is required.")
@@ -61,6 +61,7 @@ def chat_with_gemini(request: PromptRequest):
         reply = data["candidates"][0]["content"]["parts"][0]["text"]
 
         return {"reply": reply}
-
+    
     except Exception as e:
+        print(f"TTS 호출 실패: {e}")  # 로그에 출력되도록
         raise HTTPException(status_code=500, detail=f"Gemini API 호출 실패: {e}")
