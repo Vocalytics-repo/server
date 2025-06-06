@@ -17,6 +17,13 @@ router = APIRouter()
 # 요청 모델
 class TTSRequest(BaseModel):
     text: str
+    voice_name: str = "ko-KR-Standard-A"  # 기본값은 기존 여자 목소리
+
+#다음과 같은 목소리 세팅을 사용할 수 있음:
+    #"ko-KR-Standard-A": 기본 여자 목소리 1
+    #"ko-KR-Standard-B": 기본 여자 목소리 2
+    #"ko-KR-Standard-C": 기본 남자 목소리 1
+    #"ko-KR-Standard-D": 기본 남자 목소리 2
 
 # TTS API 엔드포인트
 @router.post("/api/tts")
@@ -31,7 +38,7 @@ def text_to_speech(request: TTSRequest):
 
         voice = texttospeech.VoiceSelectionParams(
             language_code="ko-KR",
-            name="ko-KR-Standard-A"
+            name=request.voice_name
         )
 
         audio_config = texttospeech.AudioConfig(
