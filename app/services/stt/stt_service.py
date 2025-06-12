@@ -26,11 +26,14 @@ def transcribe_and_correct(file_path: str) -> dict:
         else:
             correction = reply.strip()
 
-        store_error_pattern(
-            user_id="test_user",
-            stt_text=transcription,
-            enhanced_text=correction
-        )
+        
+        try:
+            store_error_pattern(
+                stt_text=transcription,
+                enhanced_text=correction
+            )
+        except Exception as es_err:
+            print(f"[Elasticsearch 저장 실패]: {es_err}")
 
             
     except Exception as e:
