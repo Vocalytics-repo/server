@@ -1,5 +1,6 @@
 # app/services/stt_service.py
 import whisper
+from services.elasticsearch.es_client import store_error_pattern
 
 model = whisper.load_model("small")
 
@@ -24,6 +25,13 @@ def transcribe_and_correct(file_path: str) -> dict:
             correction = reply.split("- [")[1].split("]")[0]
         else:
             correction = reply.strip()
+
+        store_error_pattern(
+            user_id="test_user",
+            stt_text=transcription,
+            enhanced_text=correction
+        )
+
             
     except Exception as e:
         print(f"Gemini API 호출 실패: {e}")

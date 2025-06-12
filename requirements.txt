@@ -10,3 +10,4 @@ google-cloud-texttospeech
 python-dotenv
 requests
 google-api-python-client
+elasticsearch>=8.13.0
