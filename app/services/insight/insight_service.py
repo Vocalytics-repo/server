@@ -341,7 +341,7 @@ class InsightService:
         
         for d in data:
             ref_text = d.get('ref')
-            if ref_text:
+            if ref_text and ref_text != '왜':  # "왜" 텍스트 제외
                 text_stats[ref_text]["error_rates"].append(d.get('per', 0))
                 text_stats[ref_text]["count"] += 1
                 for key in text_stats[ref_text]["csid_totals"]:
@@ -483,7 +483,7 @@ class InsightService:
         text_stats = defaultdict(lambda: {"error_rates": [], "count": 0})
         for d in data:
             ref_text = d.get('ref')
-            if ref_text and d.get('per') is not None:
+            if ref_text and ref_text != '왜' and d.get('per') is not None:  # "왜" 텍스트 제외
                 text_stats[ref_text]["error_rates"].append(d.get('per', 0))
                 text_stats[ref_text]["count"] += 1
         
