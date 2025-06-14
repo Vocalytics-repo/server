@@ -13,16 +13,21 @@ services:
       - ./your-credentials.json:/app/your-credentials.json
     depends_on:
       - es
+    restart: always
 
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     container_name: es
+    env_file:
+      - .env
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${ES_PASSWORD}
     ports:
       - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.2
@@ -39,3 +44,6 @@ services:
       - "5601:5601"
     depends_on:
       - es
+
+volumes:
+  esdata:
