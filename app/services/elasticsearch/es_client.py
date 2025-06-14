@@ -2,11 +2,50 @@ from elasticsearch import Elasticsearch
 from collections import Counter
 import os
 import traceback
+from dotenv import load_dotenv
 
-es = Elasticsearch("http://es:9200", basic_auth=("elastic", os.getenv("ES_PASSWORD")))
+# 환경변수 로드 (다른 모듈에서 import할 때를 대비)
+# 현재 디렉토리와 상위 디렉토리에서 .env 파일 찾기
+import pathlib
+current_dir = pathlib.Path(__file__).parent
+root_dir = current_dir.parent.parent.parent  # app의 상위 디렉토리 (server)
+env_paths = [
+    root_dir / '.env',
+    current_dir / '.env',
+    pathlib.Path('.env')
+]
 
+for env_path in env_paths:
+    if env_path.exists():
+        load_dotenv(env_path)
+        break
+else:
+    load_dotenv()  # 기본 로드
 
-INDEX_NAME = "pronunciation_insights_aggregated"
+es_url = os.getenv("ELASTICSEARCH_URL")
+es_username = os.getenv("ES_USERNAME")
+es_password = os.getenv("ES_PASSWORD")
+
+# 필수 환경변수 검증
+if not all([es_url, es_username, es_password]):
+    missing_vars = []
+    if not es_url: missing_vars.append("ELASTICSEARCH_URL")
+    if not es_username: missing_vars.append("ES_USERNAME")
+    if not es_password: missing_vars.append("ES_PASSWORD")
+    
+    raise ValueError(f"필수 환경변수가 설정되지 않았습니다: {es_url}{', '.join(missing_vars)}")
+
+try:
+    es = Elasticsearch(es_url, basic_auth=(es_username, es_password))
+    # 연결 테스트
+    es.ping()
+except Exception as e:
+    print(f"Elasticsearch 연결 실패: {e}")
+    raise
+
+INDEX_NAME = os.getenv("ELASTICSEARCH_INDEX_NAME")
+if not INDEX_NAME:
+    raise ValueError("ELASTICSEARCH_INDEX_NAME 환경변수가 설정되지 않았습니다.")
 if not es.indices.exists(index=INDEX_NAME):
     es.indices.create(index=INDEX_NAME)
 
