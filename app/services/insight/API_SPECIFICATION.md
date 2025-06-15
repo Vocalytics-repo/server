@@ -332,7 +332,127 @@ interface TextDifficultyResponse {
 
 ---
 
-## 7. 전체 지표 개요 API
+## 7. 발음 오류 분석 API
+
+### **요청**
+```http
+GET /api/insights/pronunciation-errors
+```
+
+### **요청 파라미터**
+| 파라미터 | 타입 | 필수 | 설명 | 예시 |
+|---------|------|------|------|------|
+| `ref_text` | string | ✅ | 분석할 참조 텍스트 | `"시계"`, `"안녕하세요"` |
+| `limit` | number | X | 반환할 최대 문서 수 (기본값: 50) | `20`, `100` |
+
+### **응답 필드**
+```typescript
+interface PronunciationErrorsResponse {
+  search_text: string;                // 검색한 텍스트
+  found_documents: number;            // 찾은 문서 수
+  pronunciation_samples: Array<{
+    ref: string;                      // 참조 텍스트
+    ans: string;                      // 정답 발음
+    rec: string;                      // 모델이 인식한 발음
+    error: string;                    // 오류 설명
+    csid: {                          // CSID 분포
+      C: number;                      // Correct 개수
+      S: number;                      // Substitution 개수
+      I: number;                      // Insertion 개수
+      D: number;                      // Deletion 개수
+    };
+    metadata: {                       // 메타데이터
+      sex: string;                    // 성별 (M/F)
+      nationality: string;            // 국적
+      level: string;                  // 레벨
+      type: string;                   // 타입 (S/W)
+    };
+  }>;
+  error_analysis: {
+    top_error_patterns: {             // 상위 10개 오류 패턴
+      [error_description: string]: number;
+    };
+    gender_performance: {             // 성별별 성과
+      [gender: string]: {
+        count: number;                // 샘플 수
+        avg_error_rate: number;       // 평균 오류율
+        median_error_rate: number;    // 중간값 오류율
+      };
+    };
+    nationality_performance: {        // 국적별 성과 (상위 5개)
+      [nationality: string]: {
+        count: number;
+        avg_error_rate: number;
+      };
+    };
+    level_performance: {              // 레벨별 성과
+      [level: string]: {
+        count: number;
+        avg_error_rate: number;
+      };
+    };
+  };
+  insights: string[];                 // 인사이트 (한국어)
+}
+```
+
+### **사용 예시**
+```javascript
+// 시계 단어 분석
+const response = await fetch('/api/insights/pronunciation-errors?ref_text=시계&limit=20');
+
+// 안녕하세요 문장 분석
+const response2 = await fetch('/api/insights/pronunciation-errors?ref_text=안녕하세요&limit=30');
+```
+
+### **Python 예시**
+```python
+import requests
+
+# 발음 오류 분석 요청
+response = requests.get(
+    'http://localhost:8000/api/insights/pronunciation-errors',
+    params={
+        'ref_text': '시계',
+        'limit': 25
+    }
+)
+
+data = response.json()
+if data['success']:
+    print(f"검색 텍스트: {data['data']['search_text']}")
+    print(f"찾은 문서 수: {data['data']['found_documents']}")
+    
+    # 발음 샘플 출력
+    for sample in data['data']['pronunciation_samples'][:3]:
+        print(f"정답: {sample['ans']}")
+        print(f"인식: {sample['rec']}")
+        print(f"오류: {sample['error']}")
+        print("---")
+```
+
+### **cURL 예시**
+```bash
+# 시계 단어 분석
+curl "http://localhost:8000/api/insights/pronunciation-errors?ref_text=시계&limit=20"
+
+# 안녕하세요 문장 분석
+curl "http://localhost:8000/api/insights/pronunciation-errors?ref_text=안녕하세요&limit=15"
+```
+
+### **특별 응답 케이스**
+데이터를 찾을 수 없는 경우:
+```typescript
+interface NoDataResponse {
+  search_text: string;
+  found_documents: 0;
+  message: string;                    // "'{텍스트}'와 관련된 발음 데이터를 찾을 수 없습니다."
+}
+```
+
+---
+
+## 8. 전체 지표 개요 API
 
 ### **요청**
 ```http
@@ -415,7 +535,7 @@ interface OverviewResponse {
 
 ---
 
-## 8. 서비스 상태 확인 API
+## 9. 서비스 상태 확인 API
 
 ### **요청**
 ```http

@@ -12,6 +12,7 @@
 | **CSID 패턴 분석** | GET | `/api/insights/csid-patterns` | `sex?`, `nationality?`, `level?` | `csid_counts`, `csid_ratios`, `accuracy_rate` |
 | **타입별 성과 분석** | GET | `/api/insights/type-performance` | 없음 | `string_analysis`, `word_analysis`, `comparison` |
 | **텍스트 난이도 분석** | GET | `/api/insights/text-difficulty` | `limit?` (1-100) | `hardest_texts`, `easiest_texts`, `difficulty_distribution` |
+| **발음 오류 분석** | GET | `/api/insights/pronunciation-errors` | `ref_text`, `limit?` (1-200) | `pronunciation_samples`, `error_analysis`, `insights` |
 | **전체 지표 개요** | GET | `/api/insights/overview` | 없음 | `summary`, `csid_overview`, `top_error_patterns`, `key_insights` |
 | **서비스 상태 확인** | GET | `/api/insights/health` | 없음 | `success`, `elasticsearch_connected` |
 
@@ -65,6 +66,11 @@ console.log('정확도:', csidData.data.accuracy_rate);
 const overviewData = await fetch(`${BASE_URL}/overview`).then(r => r.json());
 console.log('전체 평균 오류율:', overviewData.data.summary.overall_avg_error_rate);
 console.log('핵심 인사이트:', overviewData.data.key_insights);
+
+// 4. 발음 오류 분석
+const pronunciationData = await fetch(`${BASE_URL}/pronunciation-errors?ref_text=시계&limit=20`).then(r => r.json());
+console.log('찾은 문서 수:', pronunciationData.data.found_documents);
+console.log('첫 번째 샘플:', pronunciationData.data.pronunciation_samples[0]);
 ```
 
 ### Python
@@ -83,6 +89,12 @@ response = requests.get(f'{BASE_URL}/overview')
 overview = response.json()['data']
 print('전체 정확도:', overview['summary']['overall_accuracy'])
 print('핵심 인사이트:', overview['key_insights'])
+
+# 3. 발음 오류 분석
+response = requests.get(f'{BASE_URL}/pronunciation-errors', params={'ref_text': '시계', 'limit': 15})
+pronunciation_data = response.json()['data']
+print('검색 텍스트:', pronunciation_data['search_text'])
+print('발음 샘플 수:', len(pronunciation_data['pronunciation_samples']))
 ```
 
 ### cURL
@@ -95,6 +107,9 @@ curl "http://localhost:8000/api/insights/gender-performance?level=B&nationality=
 
 # 전체 지표 개요
 curl http://localhost:8000/api/insights/overview
+
+# 발음 오류 분석 (시계)
+curl "http://localhost:8000/api/insights/pronunciation-errors?ref_text=시계&limit=20"
 ```
 
 ## 사용 사례별 API 조합
@@ -136,6 +151,29 @@ async function getRecommendedTexts(difficulty = 'easy') {
   
   return difficulty === 'easy' ? data.data.easiest_texts : data.data.hardest_texts;
 }
+```
+
+### 특정 단어/문장 발음 분석
+```javascript
+// 특정 텍스트의 발음 오류 패턴 분석
+async function analyzePronunciationErrors(text, limit = 30) {
+  const response = await fetch(`${BASE_URL}/pronunciation-errors?ref_text=${encodeURIComponent(text)}&limit=${limit}`);
+  const data = await response.json();
+  
+  if (data.success && data.data.found_documents > 0) {
+    return {
+      samples: data.data.pronunciation_samples,
+      errorPatterns: data.data.error_analysis.top_error_patterns,
+      insights: data.data.insights
+    };
+  }
+  
+  return null;
+}
+
+// 사용 예시
+const clockAnalysis = await analyzePronunciationErrors('시계');
+console.log('시계 발음 인사이트:', clockAnalysis?.insights);
 ```
 
 ## 주의사항
