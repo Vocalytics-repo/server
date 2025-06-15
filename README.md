@@ -1,4 +1,6 @@
 # Vocalytics API Server
+![ChatGPT Image 2025년 6월 15일 오후 09_01_18](https://github.com/user-attachments/assets/d9a3c938-6a85-4fcf-9a4f-e8fdb2406a2e)
+
 **Vocalytics**는 언어 학습을 위한 종합적인 AI 기반 API 서버입니다.  
 음성 인식(STT), 텍스트 음성 변환(TTS), 문법 교정, YouTube 교육 영상 검색, 그리고 발음 학습 데이터 분석 기능을 제공합니다.
 
