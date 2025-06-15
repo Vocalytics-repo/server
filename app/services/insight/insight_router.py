@@ -248,6 +248,48 @@ async def get_overview():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"분석 중 오류가 발생했습니다: {str(e)}")
 
+@router.get("/pronunciation-errors")
+async def get_pronunciation_errors(
+    ref_text: str = Query(..., description="분석할 참조 텍스트 (예: '시계', '안녕하세요')"),
+    limit: int = Query(50, description="반환할 최대 문서 수 (기본값: 50)")
+):
+    """
+    발음 오류 분석 API
+    
+    - 특정 단어/문장에 대한 발음 오류 패턴 분석
+    - 정답 발음(ans), 인식된 발음(rec), 오류 설명(error) 제공
+    - 성별/국적/레벨별 해당 텍스트 발음 성과 비교
+    - 주요 오류 패턴 및 인사이트 제공
+    """
+    if not insight_service:
+        raise HTTPException(status_code=500, detail="InsightService가 초기화되지 않았습니다.")
+    
+    if limit <= 0 or limit > 200:
+        raise HTTPException(status_code=400, detail="limit은 1-200 사이의 값이어야 합니다.")
+    
+    try:
+        result = insight_service.analyze_pronunciation_errors(ref_text=ref_text, limit=limit)
+        
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        
+        if result.get("found_documents", 0) == 0:
+            return {
+                "success": True,
+                "data": result,
+                "message": f"'{ref_text}'와 관련된 발음 데이터를 찾을 수 없습니다."
+            }
+        
+        return {
+            "success": True,
+            "data": result,
+            "message": f"'{ref_text}'에 대한 발음 오류 분석이 완료되었습니다."
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"분석 중 오류가 발생했습니다: {str(e)}")
+
 @router.get("/health")
 async def health_check():
     """

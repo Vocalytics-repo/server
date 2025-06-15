@@ -551,4 +551,183 @@ class InsightService:
             "type_summary": type_summary,
             "hardest_texts": hardest_texts,
             "key_insights": insights
+        }
+
+    def analyze_pronunciation_errors(self, ref_text: str, limit: int = 50) -> Dict[str, Any]:
+        """발음 오류 분석 - 특정 단어/문장에 대한 발음 오류 패턴 분석"""
+        if not ref_text or not ref_text.strip():
+            return {"error": "분석할 텍스트를 입력해주세요."}
+        
+        ref_text = ref_text.strip()
+        
+        # ref 필드에서 해당 텍스트를 포함한 문서 검색
+        query = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {"match": {"ref": ref_text}},  # 정확한 매치
+                        {"wildcard": {"ref.keyword": f"*{ref_text}*"}}  # 부분 매치
+                    ],
+                    "minimum_should_match": 1
+                }
+            },
+            "size": limit
+        }
+        
+        hits = self._execute_search(query)
+        
+        if not hits:
+            return {
+                "search_text": ref_text,
+                "found_documents": 0,
+                "message": f"'{ref_text}'와 관련된 발음 데이터를 찾을 수 없습니다."
+            }
+        
+        # 검색된 문서들에서 데이터 추출
+        pronunciation_data = []
+        error_patterns = Counter()
+        csid_totals = {"C": 0, "S": 0, "I": 0, "D": 0}
+        error_rates = []
+        
+        # 성별, 국적, 레벨별 통계
+        gender_stats = defaultdict(lambda: {"count": 0, "error_rates": []})
+        nationality_stats = defaultdict(lambda: {"count": 0, "error_rates": []})
+        level_stats = defaultdict(lambda: {"count": 0, "error_rates": []})
+        
+        for hit in hits:
+            source = hit['_source']
+            
+            # 기본 발음 데이터
+            pronunciation_record = {
+                "ref": source.get('ref', ''),
+                "ans": source.get('ans', ''),  # 정답 발음
+                "rec": source.get('rec', ''),  # 모델이 인식한 발음
+                "error": source.get('error', ''),  # 오류 설명
+                "csid": {
+                    "C": source.get('C', 0),
+                    "S": source.get('S', 0),
+                    "I": source.get('I', 0),
+                    "D": source.get('D', 0)
+                },
+                "metadata": {
+                    "sex": source.get('sex', ''),
+                    "nationality": source.get('nationality', ''),
+                    "level": source.get('level', ''),
+                    "type": source.get('type', '')
+                }
+            }
+            
+            pronunciation_data.append(pronunciation_record)
+            
+            # 오류 패턴 수집
+            if source.get('error'):
+                error_patterns[source.get('error')] += 1
+            
+            # CSID 통계
+            for key in csid_totals:
+                csid_totals[key] += source.get(key, 0)
+            
+            # 오류율 수집
+            if source.get('per') is not None:
+                error_rates.append(source.get('per', 0))
+            
+            # 성별별 통계
+            sex = source.get('sex')
+            if sex:
+                gender_stats[sex]["count"] += 1
+                if source.get('per') is not None:
+                    gender_stats[sex]["error_rates"].append(source.get('per', 0))
+            
+            # 국적별 통계
+            nationality = source.get('nationality')
+            if nationality:
+                nationality_stats[nationality]["count"] += 1
+                if source.get('per') is not None:
+                    nationality_stats[nationality]["error_rates"].append(source.get('per', 0))
+            
+            # 레벨별 통계
+            level = source.get('level')
+            if level:
+                level_stats[level]["count"] += 1
+                if source.get('per') is not None:
+                    level_stats[level]["error_rates"].append(source.get('per', 0))
+        
+        # 통계 계산
+        avg_error_rate = statistics.mean(error_rates) if error_rates else 0
+        median_error_rate = statistics.median(error_rates) if error_rates else 0
+        std_error_rate = statistics.stdev(error_rates) if len(error_rates) > 1 else 0
+        
+        # 성별별 통계 정리
+        gender_analysis = {}
+        for sex, stats in gender_stats.items():
+            if stats["error_rates"]:
+                gender_analysis[sex] = {
+                    "count": stats["count"],
+                    "avg_error_rate": statistics.mean(stats["error_rates"]),
+                    "median_error_rate": statistics.median(stats["error_rates"])
+                }
+        
+        # 국적별 통계 정리 (상위 5개)
+        nationality_analysis = {}
+        for nat, stats in nationality_stats.items():
+            if stats["error_rates"]:
+                nationality_analysis[nat] = {
+                    "count": stats["count"],
+                    "avg_error_rate": statistics.mean(stats["error_rates"])
+                }
+        
+        # 오류율 순으로 정렬
+        nationality_analysis = dict(sorted(nationality_analysis.items(), 
+                                         key=lambda x: x[1]["avg_error_rate"])[:5])
+        
+        # 레벨별 통계 정리
+        level_analysis = {}
+        for lvl, stats in level_stats.items():
+            if stats["error_rates"]:
+                level_analysis[lvl] = {
+                    "count": stats["count"],
+                    "avg_error_rate": statistics.mean(stats["error_rates"])
+                }
+        
+        # 가장 흔한 오류 패턴 (상위 10개)
+        top_error_patterns = dict(error_patterns.most_common(10))
+        
+        # 발음 정확도 계산
+        total_operations = sum(csid_totals.values())
+        accuracy = (csid_totals["C"] / total_operations * 100) if total_operations > 0 else 0
+        
+        # 인사이트 생성
+        insights = []
+        
+        if avg_error_rate > 0.2:
+            insights.append(f"'{ref_text}'는 학습자들에게 어려운 발음으로 분류됩니다.")
+        elif avg_error_rate < 0.05:
+            insights.append(f"'{ref_text}'는 대부분의 학습자가 정확하게 발음할 수 있습니다.")
+        
+        if csid_totals["S"] > csid_totals["I"] + csid_totals["D"]:
+            insights.append("대체(Substitution) 오류가 가장 많이 발생합니다.")
+        elif csid_totals["I"] > csid_totals["S"] + csid_totals["D"]:
+            insights.append("삽입(Insertion) 오류가 주로 발생합니다.")
+        elif csid_totals["D"] > csid_totals["S"] + csid_totals["I"]:
+            insights.append("삭제(Deletion) 오류가 주로 발생합니다.")
+        
+        # 성별 차이 분석
+        if len(gender_analysis) == 2 and 'M' in gender_analysis and 'F' in gender_analysis:
+            male_rate = gender_analysis['M']['avg_error_rate']
+            female_rate = gender_analysis['F']['avg_error_rate']
+            if abs(male_rate - female_rate) > 0.05:  # 5% 이상 차이
+                better_gender = "여성" if female_rate < male_rate else "남성"
+                insights.append(f"이 텍스트는 {better_gender} 학습자가 더 잘 발음합니다.")
+        
+        return {
+            "search_text": ref_text,
+            "found_documents": len(pronunciation_data),
+            "pronunciation_samples": pronunciation_data,
+            "error_analysis": {
+                "top_error_patterns": top_error_patterns,
+                "gender_performance": gender_analysis,
+                "nationality_performance": nationality_analysis,
+                "level_performance": level_analysis
+            },
+            "insights": insights
         } 
