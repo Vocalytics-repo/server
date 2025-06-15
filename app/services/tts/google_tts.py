@@ -26,9 +26,13 @@ class TTSRequest(BaseModel):
     #"ko-KR-Standard-B": 기본 여자 목소리 2
     #"ko-KR-Standard-C": 기본 남자 목소리 1
     #"ko-KR-Standard-D": 기본 남자 목소리 2
+    # "ko-KR-Chirp3-HD-Achernar": 고급 여자 목소리 1
+    # "ko-KR-Chirp3-HD-Leda": 고급 여자 목소리 2
+    # "ko-KR-Chirp3-HD-Orus": 고급 남자 목소리 1
+    # "ko-KR-Chirp3-HD-Algenib": 고급 남자 목소리 2
 
-female_voices = ["ko-KR-Standard-A", "ko-KR-Standard-B"]
-male_voices = ["ko-KR-Standard-C", "ko-KR-Standard-D"]
+female_voices = ["ko-KR-Chirp3-HD-Achernar", "ko-KR-Chirp3-HD-Leda"]
+male_voices = ["ko-KR-Chirp3-HD-Orus", "ko-KR-Chirp3-HD-Algenib"]
 
 # TTS API 엔드포인트
 @router.post("/api/tts")
