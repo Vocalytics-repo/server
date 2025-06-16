@@ -1,16 +1,24 @@
 # app/services/stt_service.py
-import whisper
+import requests
 from services.elasticsearch.es_client import store_error_pattern
 
-model = whisper.load_model("small")
+STT_API_URL = "http://voice-stt-container:8081/api/v1/stt"
 
-def transcribe_with_whisper(file_path: str) -> str:
-    result = model.transcribe(file_path, language="ko")
-    return result["text"]
+def transcribe_with_external_stt(file_path: str) -> str:
+    with open(file_path, "rb") as f:
+        files = {"file": (file_path, f, "audio/wav")}
+        try:
+            response = requests.post(STT_API_URL, files=files, timeout=60)
+            response.raise_for_status()
+            result = response.json()
+            return result.get("text", "")
+        except Exception as e:
+            print(f"[STT 서버 오류]: {e}")
+            return ""
 
 def transcribe_and_correct(file_path: str) -> dict:
     # Whisper로 텍스트 변환
-    transcription = transcribe_with_whisper(file_path)
+    transcription = transcribe_with_external_stt(file_path)
     
     try:
         from services.correction.gemini import PromptRequest, chat_with_gemini
