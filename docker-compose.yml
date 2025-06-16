@@ -15,6 +15,14 @@ services:
       - es
     restart: always
 
+  voice-stt-container:
+    build:
+      context: ../voicelearning/VoiceRecognitionAIAPI
+    container_name: voice-stt-container
+    ports:
+      - "8081:8081"
+    restart: always
+
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     container_name: es
