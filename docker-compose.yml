@@ -14,14 +14,8 @@ services:
     depends_on:
       - es
     restart: always
-
-  voice-stt-container:
-    build:
-      context: ../voicelearning/VoiceRecognitionAIAPI
-    container_name: voice-stt-container
-    ports:
-      - "8081:8081"
-    restart: always
+    networks:
+      - vocalytics-network
 
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
@@ -36,6 +30,8 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    networks:
+      - vocalytics-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.2
@@ -52,6 +48,12 @@ services:
       - "5601:5601"
     depends_on:
       - es
+    networks:
+      - vocalytics-network
 
 volumes:
   esdata:
+
+networks:
+  vocalytics-network:
+    external: true

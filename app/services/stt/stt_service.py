@@ -8,10 +8,18 @@ def transcribe_with_external_stt(file_path: str) -> str:
     with open(file_path, "rb") as f:
         files = {"file": (file_path, f, "audio/wav")}
         try:
-            response = requests.post(STT_API_URL, files=files, timeout=60)
+            response = requests.post(STT_API_URL, files=files, timeout=300)
             response.raise_for_status()
             result = response.json()
-            return result.get("text", "")
+
+            print("[DEBUG] STT 응답:", result)
+
+            transcription = result.get("text", "")
+            if not isinstance(transcription, str):
+                transcription = str(transcription)
+
+            return transcription
+
         except Exception as e:
             print(f"[STT 서버 오류]: {e}")
             return ""
