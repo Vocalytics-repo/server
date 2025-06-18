@@ -76,11 +76,11 @@ POST /api/tts
 - Support for a variety of voice options
 ```
 
-### 문법 교정
+### grammar correction
 ```
 POST /api/correction
-- 텍스트 문법 및 표현 교정
-- Gemini AI 기반 자연어 처리
+- Text Grammar and Expression Correction
+- Gemini AI-based natural language processing
 ```
 
 ### grammar correction
