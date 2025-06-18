@@ -1,79 +1,79 @@
 # Vocalytics API Server
 ![ChatGPT Image 2025년 6월 15일 오후 09_01_18](https://github.com/user-attachments/assets/d9a3c938-6a85-4fcf-9a4f-e8fdb2406a2e)
 
-**Vocalytics**는 언어 학습을 위한 종합적인 AI 기반 API 서버입니다.  
-음성 인식(STT), 텍스트 음성 변환(TTS), 문법 교정, YouTube 교육 영상 검색, 그리고 발음 학습 데이터 분석 기능을 제공합니다.
+**Vocalytics** is a comprehensive AI-powered API server for language learning.
+It provides speech recognition (STT), text-to-speech (TTS), grammar correction, YouTube educational video search, and pronunciation learning data analysis features.
 
-## 주요 기능
+## Key Features
 
-### 음성 인식 (STT)
-- **OpenAI Whisper** 기반 고정밀 음성-텍스트 변환
-- 실시간 오디오 파일 업로드 및 처리
-- 자동 문법 교정 통합
+### Speech Recognition (STT)
+- High-precision speech-to-text conversion based on **OpenAI Whisper**
+- Real-time audio file upload and processing
+- Integrated automatic grammar correction
 
-### 텍스트 음성 변환 (TTS)
-- **Google Cloud TTS** 활용 고품질 음성 합성
-- 다양한 언어 및 음성 옵션 지원
-- 실시간 음성 생성 및 스트리밍
+### Text-to-Speech (TTS)
+- High-quality speech synthesis using **Google Cloud TTS**
+- Supports various languages and voice options
+- Real-time voice generation and streaming
 
-### 문법 교정
-- **Google Gemini AI** 기반 지능형 텍스트 교정
-- 문법, 맞춤법, 표현 개선 제안
-- 자연스러운 한국어 표현 변환
+### Grammar Correction
+- Intelligent text correction powered by **Google Gemini AI**
+- Suggestions for grammar, spelling, and expression improvements
+- Natural Korean expression transformation
 
-### YouTube 교육 영상 검색
-- **YouTube Data API v3** 통합
-- 교육 목적 영상 필터링 및 검색
-- 상세 영상 정보 및 메타데이터 제공
+### YouTube Educational Video Search
+- Integrated with **YouTube Data API v3**
+- Filters and searches videos for educational purposes
+- Provides detailed video information and metadata
 
-### 발음 학습 인사이트 분석
-- **Elasticsearch** 기반 대용량 학습 데이터 분석
-- 성별, 국적, 레벨별 발음 성과 분석
-- CSID(Correct, Substitution, Insertion, Deletion) 오류 패턴 분석
-- 개인화된 학습 추천 및 난이도 분석
+### Pronunciation Learning Insight Analysis
+- Large-scale learning data analysis based on **Elasticsearch**
+- Pronunciation performance analysis by gender, nationality, and proficiency level
+- CSID (Correct, Substitution, Insertion, Deletion) error pattern analysis
+- Personalized learning recommendations and difficulty analysis
 
 ---
 
-## 기술 스택
+## Tech Stack
 
 ### Backend Framework
-- **FastAPI** - 고성능 비동기 웹 프레임워크
-- **Python 3.9** - 메인 개발 언어
-- **Uvicorn** - ASGI 서버
+- **FastAPI** – High-performance asynchronous web framework  
+- **Python 3.9** – Primary development language  
+- **Uvicorn** – ASGI server
 
 ### AI & Machine Learning
-- **OpenAI Whisper** - 음성 인식
-- **Google Cloud TTS** - 텍스트 음성 변환
-- **Google Gemini** - 문법 교정 및 텍스트 분석
+- **OpenAI Whisper** – Speech recognition  
+- **Google Cloud TTS** – Text-to-speech synthesis  
+- **Google Gemini** – Grammar correction and text analysis
 
 ### Data & Search
-- **Elasticsearch 8.13** - 대용량 데이터 검색 및 분석
-- **Kibana** - 데이터 시각화 및 모니터링
+- **Elasticsearch 8.13** – Large-scale data search and analysis  
+- **Kibana** – Data visualization and monitoring
 
 ### External APIs
-- **YouTube Data API v3** - 교육 영상 검색
-- **Google API Client** - Google 서비스 통합
+- **YouTube Data API v3** – Educational video search  
+- **Google API Client** – Integration with Google services
 
 ### Infrastructure
-- **Docker & Docker Compose** - 컨테이너화 및 오케스트레이션
-- **CORS Middleware** - 크로스 오리진 요청 지원
+- **Docker & Docker Compose** – Containerization and orchestration  
+- **CORS Middleware** – Cross-origin request support
 
 ---
 
-## API 엔드포인트
+## API endpoints
 
-### 음성 인식 (STT)
+### Speech Recognition (STT)
 ```
 POST /api/stt
-- 오디오 파일 업로드 및 텍스트 변환
-- 자동 문법 교정 포함
+- Upload audio files and convert text
+- Includes automatic grammar corrections
 ```
 
-### 텍스트 음성 변환 (TTS)
+### Text to Speech (TTS)
 ```
 POST /api/tts
-- 텍스트를 음성으로 변환
-- 다양한 음성 옵션 지원
+- Converting text to voice
+- Support for a variety of voice options
 ```
 
 ### 문법 교정
@@ -83,156 +83,139 @@ POST /api/correction
 - Gemini AI 기반 자연어 처리
 ```
 
-### YouTube 검색
+### grammar correction
 ```
-GET /youtube/search
-POST /youtube/search
-GET /youtube/video/{video_id}
-GET /youtube/health
+POST /api/correction
+- Text Grammar and Expression Correction
+- Gemini AI-based natural language processing
 ```
 
-### 발음 학습 인사이트
+### Pronunciation Learning Insights
 ```
-GET /api/insights/overview                    # 전체 학습 데이터 개요
-GET /api/insights/gender-performance          # 성별별 발음 성과 분석
-GET /api/insights/nationality-analysis        # 국적별 발음 특성 분석
-GET /api/insights/nationality-analysis/{nationality}  # 특정 국적 분석
-GET /api/insights/level-performance           # 레벨별 성과 분석
-GET /api/insights/level-performance/{level}   # 특정 레벨 분석
-GET /api/insights/csid-patterns              # CSID 오류 패턴 분석
-GET /api/insights/type-performance           # 타입별 성과 분석
-GET /api/insights/text-difficulty            # 텍스트 난이도 분석
-GET /api/insights/pronunciation-errors       # 발음 오류 분석
-GET /api/insights/health                     # 서비스 상태 확인
+GET /api/insights/overview                    # Overview of overall learning data  
+GET /api/insights/gender-performance          # Pronunciation performance analysis by gender  
+GET /api/insights/nationality-analysis        # Pronunciation characteristics by nationality  
+GET /api/insights/nationality-analysis/{nationality}  # Analysis for a specific nationality  
+GET /api/insights/level-performance           # Performance analysis by proficiency level  
+GET /api/insights/level-performance/{level}   # Analysis for a specific level  
+GET /api/insights/csid-patterns               # CSID (Correct, Substitution, Insertion, Deletion) error pattern analysis  
+GET /api/insights/type-performance            # Performance analysis by type  
+GET /api/insights/text-difficulty             # Text difficulty analysis  
+GET /api/insights/pronunciation-errors        # Pronunciation error analysis  
+GET /api/insights/health                      # Service health check
 ```
 
 ---
 
-## 환경 설정
+## Configuration Settings
 
-### 필수 환경 변수
-`.env` 파일을 생성하고 다음 변수들을 설정하세요:
+### Required Environmental Variables
+Create the '.env' file and set the following variables:
 
 ```env
-# Google API 설정
+# Google API Settings
 GOOGLE_API_KEY=your_google_api_key_here
 
-# Elasticsearch 설정
+# Elasticsearch setting
 ES_PASSWORD=your_elasticsearch_password
 ELASTICSEARCH_URL=http://localhost:9200
 ELASTICSEARCH_USERNAME=elastic
 
-# Google Cloud 인증 (TTS용)
+# Google Cloud Certification (for TTS)
 GOOGLE_APPLICATION_CREDENTIALS=./your-credentials.json
 ```
 
-### Google Cloud 서비스 계정 설정
-1. Google Cloud Console에서 서비스 계정 생성
-2. Text-to-Speech API 권한 부여
-3. JSON 키 파일 다운로드 후 `your-credentials.json`으로 저장
+### Set up a Google Cloud service account
+1. Create a service account in Google Cloud Console
+2. Text-to-Speech API Authorization
+3. Download JSON key file and save it as `your-credentials.json`
 
 ---
 
-## 설치 및 실행
+## Installation and execution
 
-### 로컬 개발 환경
+### Local Development Environment
 
 ```bash
-# 저장소 클론
-git clone <repository-url>
+# Clone the repository  
+git clone <repository-url>  
 cd vocalytics-server
 
-# 가상환경 생성 및 활성화
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# Create and activate a virtual environment  
+python -m venv venv  
+source venv/bin/activate  # For Windows: venv\Scripts\activate
 
-# 의존성 설치
+# Install dependencies  
 pip install -r requirements.txt
 
-# 환경 변수 설정
-cp .env.example .env
-# .env 파일 편집하여 API 키 설정
+# Set environment variables  
+cp .env.example .env  
+# Edit the .env file to add your API keys
 
-# 서버 실행
+# Run the server  
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Docker를 이용한 실행
+### Running with Docker
 
 ```bash
-# Docker Compose로 전체 스택 실행
+# Run the full stack with Docker Compose
 docker-compose up -d
 
-# 로그 확인
+# Check Logs
 docker-compose logs -f backend
 ```
 
-### 서비스 확인
-- **API 문서**: http://localhost:8000/docs
+### Check Service
+- **API Docs**: http://localhost:8000/docs
 - **Elasticsearch**: http://localhost:9200
 - **Kibana**: http://localhost:5601
 
 ---
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 vocalytics-server/
 ├── app/
-│   ├── main.py                 # FastAPI 애플리케이션 진입점
-│   ├── event.py               # 라우터 통합 관리
-│   ├── services/              # 핵심 서비스 모듈
-│   │   ├── stt/              # 음성 인식 서비스
-│   │   ├── tts/              # 텍스트 음성 변환 서비스
-│   │   ├── correction/       # 문법 교정 서비스
-│   │   ├── youtube/          # YouTube 검색 서비스
-│   │   ├── insight/          # 학습 데이터 분석 서비스
-│   │   └── elasticsearch/    # Elasticsearch 클라이언트
-│   ├── config/               # 설정 파일
-│   └── utils/                # 유틸리티 함수
-├── requirements.txt          # Python 의존성
-├── docker-compose.yml       # Docker 컨테이너 구성
-├── Dockerfile              # Docker 이미지 빌드 설정
-└── .env                    # 환경 변수 (생성 필요)
+│   ├── main.py                 # Entry point of the FastAPI application  
+│   ├── event.py                # Router integration management  
+│   ├── services/               # Core service modules  
+│   │   ├── stt/                # Speech recognition service  
+│   │   ├── tts/                # Text-to-speech service  
+│   │   ├── correction/         # Grammar correction service  
+│   │   ├── youtube/            # YouTube search service  
+│   │   ├── insight/            # Learning data analysis service  
+│   │   └── elasticsearch/      # Elasticsearch client  
+│   ├── config/                 # Configuration files  
+│   └── utils/                  # Utility functions  
+├── requirements.txt            # Python dependencies  
+├── docker-compose.yml          # Docker container configuration  
+├── Dockerfile                  # Docker image build settings  
+└── .env                        # Environment variables (needs to be created)
 ```
 
 ---
 
-## 사용 예시
+## Use Examples
 
-### 음성 인식 (STT)
+### Speech Recognition (STT)
 ```bash
 curl -X POST "http://localhost:8000/api/stt" \
   -H "Content-Type: multipart/form-data" \
   -F "audio=@your_audio_file.wav"
 ```
 
-### YouTube 영상 검색
+### Search for YouTube videos
 ```bash
 curl "http://localhost:8000/youtube/search?query=한국어 초급자를 위한 교육 영상&max_results=10"
 ```
 
-### 발음 성과 분석
+### Analysis of pronunciation performance
 ```bash
-# 성별별 발음 성과 분석
+# Analysis of Pronunciation Performance by Gender
 curl "http://localhost:8000/api/insights/gender-performance"
 
-# 특정 국적의 발음 특성 분석
+# Analysis of pronunciation characteristics of a particular nationality
 curl "http://localhost:8000/api/insights/nationality-analysis/Chinese"
 ```
-
----
-
-## 개발 및 기여
-
-### 개발 환경 설정
-1. Python 3.9+ 설치
-2. FFmpeg 설치 (음성 처리용)
-3. Docker 및 Docker Compose 설치
-
-### 코드 스타일
-- **Black** - 코드 포매팅
-- **FastAPI** 표준 구조 준수
-- **Type Hints** 사용 권장
-
----
